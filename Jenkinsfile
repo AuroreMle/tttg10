@@ -23,14 +23,7 @@ pipeline {
             }
         }
 
-        stage('Print Directory') {
-            steps {
-                script {
-                    // Print the directory contents to verify Dockerfile location
-                    sh 'ls -la'
-                }
-            }
-        }
+       
 
         stage('Pull Latest Changes') {
             steps {
