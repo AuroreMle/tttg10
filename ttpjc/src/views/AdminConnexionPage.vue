@@ -31,7 +31,7 @@ export default {
   methods: {
     async loginAdmin() {
       try {
-        const response = await fetch('http://localhost:3000/login/admin', {
+        const response = await fetch('https://backend-vnuy.onrender.com/login/admin', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

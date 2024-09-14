@@ -35,7 +35,7 @@ export default {
   methods: {
     async signupAdmin() {
       try {
-        const response = await fetch('http://localhost:3000/signup/admin', {
+        const response = await fetch('https://backend-vnuy.onrender.com/signup/admin', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
