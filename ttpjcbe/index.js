@@ -137,7 +137,7 @@ app.get('/admin-history', (req, res) => {
 
 // Démarrer le serveur
 app.listen(port, () => {
-  console.log(`Server is running on https://backend-vnuy.onrender.com`);
+  console.log(`Server is running on port ${port}`);
   connection.connect((err) => {
     if (err) {
       console.error('Erreur lors de la connexion à la base de données :', err);
@@ -146,4 +146,5 @@ app.listen(port, () => {
     }
   });
 });
+
 
