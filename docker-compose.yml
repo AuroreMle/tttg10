@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  frontend:
+    build:
+      context: ./ttpjc
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ./ttpjc:/app
+      - /app/node_modules
+    
+
+  backend:
+    build:
+      context: ./ttpjcbe
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./ttpjcbe:/app
+      - /app/node_modules
+    
