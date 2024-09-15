@@ -31,7 +31,7 @@ export default {
   methods: {
     async loginAdmin() {
       try {
-        const response = await fetch('https://backend-vnuy.onrender.com/login/admin', {
+        const response = await fetch('vigilant-smile.railway.internal/login/admin', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
