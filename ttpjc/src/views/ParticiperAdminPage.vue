@@ -35,7 +35,7 @@ export default {
   methods: {
     async signupAdmin() {
       try {
-        const response = await fetch('vigilant-smile.railway.internal/signup/admin', {
+        const response = await fetch('https://vigilant-smile-production.up.railway.app/signup/admin', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

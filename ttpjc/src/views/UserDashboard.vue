@@ -54,7 +54,7 @@ export default {
   methods: {
     async validateCode() {
       try {
-        const response = await axios.post('vigilant-smile.railway.internal/validate-code', { userId: this.userId, code: this.code });
+        const response = await axios.post('https://vigilant-smile-production.up.railway.app/validate-code', { userId: this.userId, code: this.code });
         if (response.status === 200 && response.data.message === 'Code valide !') {
           this.alertMessage = 'Code valide !';
           this.alertClass = 'alert-success';
@@ -83,7 +83,7 @@ export default {
     },
     async fetchHistory() {
       try {
-        const response = await axios.get(`vigilant-smile.railway.internal/user-history/${this.userId}`);
+        const response = await axios.get(`https://vigilant-smile-production.up.railway.app/user-history/${this.userId}`);
         this.history = response.data.map(entry => ({
           date: new Date(entry.validation_date).toLocaleDateString(),
           code: entry.code,
