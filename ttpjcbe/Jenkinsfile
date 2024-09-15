@@ -1,0 +1,71 @@
+pipeline {
+    agent any
+
+    environment {
+        FRONTEND_CONTAINER = "workspace-frontend-1"
+        BACKEND_CONTAINER = "workspace-backend-1"
+        PROMETHEUS_IMAGE = "prom/prometheus"
+        PROMETHEUS_CONTAINER = "prometheus"
+        VM_IP = "199.247.6.110"
+        PROMETHEUS_CONFIG = "/path/to/prometheus.yml" // Update this with the actual path to prometheus.yml
+    }
+
+    stages {
+        stage('Check Docker') {
+            steps {
+                script {
+                    // Ensure Docker is running
+                    sh 'docker --version'
+                }
+            }
+        }
+
+        stage('Run Prometheus') {
+            steps {
+                script {
+                    // Stop and remove any existing Prometheus container
+                    sh """
+                    docker stop ${PROMETHEUS_CONTAINER} || true
+                    docker rm ${PROMETHEUS_CONTAINER} || true
+                    """
+                    
+                    // Run Prometheus container with mounted configuration
+                    sh """
+                    docker run -d --name ${PROMETHEUS_CONTAINER} \
+                      -p 9090:9090 \
+                      -v ${PROMETHEUS_CONFIG}:/etc/prometheus/prometheus.yml \
+                      ${PROMETHEUS_IMAGE}
+                    """
+                }
+            }
+        }
+
+        stage('Verify Containers Running') {
+            steps {
+                script {
+                    // Check if the frontend and backend containers are running
+                    sh "docker ps | grep ${FRONTEND_CONTAINER}"
+                    sh "docker ps | grep ${BACKEND_CONTAINER}"
+                }
+            }
+        }
+
+        stage('Prometheus Monitoring') {
+            steps {
+                script {
+                    // Print out the Prometheus URL
+                    echo "Prometheus is running at http://${VM_IP}:9090"
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                // Show logs for the Prometheus container in case of failure
+                sh "docker logs ${PROMETHEUS_CONTAINER}"
+            }
+        }
+    }
+}
