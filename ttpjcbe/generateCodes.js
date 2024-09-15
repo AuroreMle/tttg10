@@ -3,10 +3,10 @@ const crypto = require('crypto');
 
 // Configuration de la connexion à la base de données
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'gten',
-  password: 'dipl0ma!',
-  database: 'ttpjc_db'
+  host: 'autorack.proxy.rlwy.net',
+  user: 'root',
+  password: 'lVdeUivlgmbntGObwHtDOcByVUShLffH',
+  database: 'railway'
 });
 
 // Connecter à la base de données

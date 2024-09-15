@@ -83,7 +83,7 @@ export default {
     async fetchHistory() {
       try {
         // Récupération de l'historique des gains
-        const response = await axios.get('http://localhost:3000/admin-history');
+        const response = await axios.get('https://vigilant-smile-production.up.railway.app/admin-history');
         this.history = response.data.map(entry => ({
           id: entry.id,
           date: new Date(entry.date).toLocaleDateString(),
@@ -100,7 +100,7 @@ export default {
     },
     async updateStatus(id) {
       try {
-        const response = await axios.patch(`http://localhost:3000/update-status/${id}`);
+        const response = await axios.patch(`https://vigilant-smile-production.up.railway.app/update-status/${id}`);
         if (response.status === 200) {
           const updatedHistory = this.history.map(entry => {
             if (entry.id === id) {
