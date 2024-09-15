@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     environment {
         PROMETHEUS_CONTAINER_NAME = 'prometheus'
         PROMETHEUS_PORT = '9090'
@@ -12,11 +12,13 @@ pipeline {
         stage('Clean up Existing Prometheus Container') {
             steps {
                 script {
-                    // Clean up any existing Prometheus container
+                    // Clean up any existing Prometheus container with the same name
                     sh """
+                    if [ \$(docker ps -q -f name=\$PROMETHEUS_CONTAINER_NAME) ]; then
+                        docker stop \$PROMETHEUS_CONTAINER_NAME
+                    fi
                     if [ \$(docker ps -a -q -f name=\$PROMETHEUS_CONTAINER_NAME) ]; then
-                        docker stop \$PROMETHEUS_CONTAINER_NAME || true
-                        docker rm \$PROMETHEUS_CONTAINER_NAME || true
+                        docker rm \$PROMETHEUS_CONTAINER_NAME
                     fi
                     """
                 }
