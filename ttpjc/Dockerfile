@@ -25,8 +25,8 @@ COPY --from=build-stage /app/dist /usr/share/nginx/html
 # Copy the default Nginx configuration file
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose the port Nginx will run on
-EXPOSE 70
+# Expose the new port Nginx will run on
+EXPOSE 8081
 
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
