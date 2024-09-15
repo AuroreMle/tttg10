@@ -1,60 +1,38 @@
 pipeline {
     agent any
-
+    
     environment {
-        FRONTEND_CONTAINER = "workspace-frontend-1"
-        BACKEND_CONTAINER = "workspace-backend-1"
-        PROMETHEUS_IMAGE = "prom/prometheus"
-        PROMETHEUS_CONTAINER = "prometheus"
-        VM_IP = "199.247.6.110"
-        PROMETHEUS_CONFIG = "/path/to/prometheus.yml" // Update this with the actual path to prometheus.yml
+        PROMETHEUS_CONTAINER_NAME = 'prometheus'
+        PROMETHEUS_PORT = '9090'
+        PROMETHEUS_CONFIG_PATH = '/path/to/prometheus.yml/prometheus.yml' // Update with your correct path
+        PROMETHEUS_IMAGE = 'prom/prometheus'
     }
 
     stages {
-        stage('Check Docker') {
+        stage('Clean up Existing Prometheus Container') {
             steps {
                 script {
-                    // Ensure Docker is running
-                    sh 'docker --version'
-                }
-            }
-        }
-
-        stage('Run Prometheus') {
-            steps {
-                script {
-                    // Stop and remove any existing Prometheus container
+                    // Check if the Prometheus container already exists and remove it if it does
                     sh """
-                    docker stop ${PROMETHEUS_CONTAINER} || true
-                    docker rm ${PROMETHEUS_CONTAINER} || true
-                    """
-                    
-                    // Run Prometheus container with mounted configuration
-                    sh """
-                    docker run -d --name ${PROMETHEUS_CONTAINER} \
-                      -p 9090:9090 \
-                      -v ${PROMETHEUS_CONFIG}:/etc/prometheus/prometheus.yml \
-                      ${PROMETHEUS_IMAGE}
+                    if [ \$(docker ps -a -q -f name=\$PROMETHEUS_CONTAINER_NAME) ]; then
+                        docker stop \$PROMETHEUS_CONTAINER_NAME || true
+                        docker rm \$PROMETHEUS_CONTAINER_NAME || true
+                    fi
                     """
                 }
             }
         }
 
-        stage('Verify Containers Running') {
+        stage('Run Prometheus Container') {
             steps {
                 script {
-                    // Check if the frontend and backend containers are running
-                    sh "docker ps | grep ${FRONTEND_CONTAINER}"
-                    sh "docker ps | grep ${BACKEND_CONTAINER}"
-                }
-            }
-        }
-
-        stage('Prometheus Monitoring') {
-            steps {
-                script {
-                    // Print out the Prometheus URL
-                    echo "Prometheus is running at http://${VM_IP}:9090"
+                    // Run the Prometheus container with the specified config file
+                    sh """
+                    docker run -d --name \$PROMETHEUS_CONTAINER_NAME \\
+                        -p \$PROMETHEUS_PORT:\$PROMETHEUS_PORT \\
+                        -v \$PROMETHEUS_CONFIG_PATH:/etc/prometheus/prometheus.yml \\
+                        \$PROMETHEUS_IMAGE
+                    """
                 }
             }
         }
@@ -63,8 +41,8 @@ pipeline {
     post {
         always {
             script {
-                // Show logs for the Prometheus container in case of failure
-                sh "docker logs ${PROMETHEUS_CONTAINER}"
+                // Ensure the Prometheus container is running and print its status
+                sh 'docker ps -f name=\$PROMETHEUS_CONTAINER_NAME'
             }
         }
     }
