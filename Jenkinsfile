@@ -1,40 +1,60 @@
 pipeline {
     agent any
 
-    environment {
-        PROMETHEUS_CONTAINER_NAME = 'prometheus'
-        PROMETHEUS_PORT = '9090'
-        PROMETHEUS_CONFIG_PATH = '/home/linuxuser/prometheus.yml'  // Correct path
-        PROMETHEUS_IMAGE = 'prom/prometheus'
-    }
-
     stages {
-        stage('Clean up Existing Prometheus Container') {
+        stage('Checkout') {
             steps {
                 script {
-                    // Clean up any existing Prometheus container with the same name
-                    sh """
-                    if [ \$(docker ps -q -f name=\$PROMETHEUS_CONTAINER_NAME) ]; then
-                        docker stop \$PROMETHEUS_CONTAINER_NAME
-                    fi
-                    if [ \$(docker ps -a -q -f name=\$PROMETHEUS_CONTAINER_NAME) ]; then
-                        docker rm \$PROMETHEUS_CONTAINER_NAME
-                    fi
-                    """
+                    // Clean up the workspace
+                    sh 'git reset --hard'
+                    sh 'git clean -fd'
+
+                    // Prune old, conflicting branches
+                    sh 'git remote prune origin'
+
+                    // Checkout the main branch from the new repository
+                    checkout([$class: 'GitSCM',
+                              branches: [[name: '*/main']],
+                              doGenerateSubmoduleConfigurations: false,
+                              extensions: [],
+                              userRemoteConfigs: [[url: 'https://github.com/AuroreMle/tttg10', credentialsId: 'access-git']]
+                    ])
                 }
             }
         }
 
-        stage('Run Prometheus Container') {
+
+
+        stage('Pull Latest Changes') {
             steps {
                 script {
-                    // Run the Prometheus container with the correct config path
-                    sh """
-                    docker run -d --name \$PROMETHEUS_CONTAINER_NAME \\
-                        -p \$PROMETHEUS_PORT:\$PROMETHEUS_PORT \\
-                        -v \$PROMETHEUS_CONFIG_PATH:/etc/prometheus/prometheus.yml \\
-                        \$PROMETHEUS_IMAGE
-                    """
+                    // Pull the latest changes from the main branch
+                    sh 'git pull origin main'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    // Check Docker and Docker Compose versions
+                    sh 'docker --version'
+                    sh 'docker-compose --version'
+
+                    // Build Docker images
+                    sh 'docker-compose build --no-cache'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    // Stop and remove existing containers
+                    sh 'docker-compose down'
+
+                    // Start Docker containers in detached mode
+                    sh 'docker-compose up -d --build'
                 }
             }
         }
@@ -42,10 +62,14 @@ pipeline {
 
     post {
         always {
-            script {
-                // Verify the status of the Prometheus container
-                sh 'docker ps -f name=\$PROMETHEUS_CONTAINER_NAME'
-            }
+            // Clean up and perform any necessary actions after the pipeline completes
+            echo 'Pipeline finished.'
+        }
+        success {
+            echo 'Pipeline succeeded.'
+        }
+        failure {
+            echo 'Pipeline failed.'
         }
     }
 }
