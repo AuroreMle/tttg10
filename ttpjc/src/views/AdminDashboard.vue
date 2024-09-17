@@ -20,7 +20,7 @@
               <th>Date de validation</th>
               <th>Code concours</th>
               <th>Gain</th>
-              <th>A retirer le plus tard</th>
+              <th>A retirer au plus tard</th>
               <th>Nom de l'utilisateur</th>
               <th>Statut</th>
             </tr>
@@ -89,10 +89,10 @@ export default {
           date: new Date(entry.validation_date).toLocaleDateString(),
           code: entry.code,
           gain: entry.gain,
-          expiryDate: new Date(entry.expiryDate).toLocaleDateString(),
+          expiryDate: new Date(entry.expiry_date).toLocaleDateString(),
           username: entry.username || 'N/A',
           status: entry.status || 'À remettre',
-          statusDate: entry.statusDate || ''
+          statusDate: entry.status_date || ''
         }));
       } catch (error) {
         console.error('Erreur lors de la récupération de l\'historique: ', error);
