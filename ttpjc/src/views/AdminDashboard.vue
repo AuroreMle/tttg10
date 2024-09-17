@@ -84,13 +84,17 @@ export default {
       try {
         // Récupération de l'historique des gains
         const response = await axios.get('https://vigilant-smile-production.up.railway.app/admin-history');
+        // Requête pour récupérer le username par user_id
+        const userResponse = await axios.get(`https://vigilant-smile-production.up.railway.app/users/${entry.user_id}`);
+        const username = userResponse.data.username;
+
         this.history = response.data.map(entry => ({
           id: entry.id,
           date: new Date(entry.validation_date).toLocaleDateString(),
           code: entry.code,
           gain: entry.gain,
           expiryDate: new Date(entry.expiry_date).toLocaleDateString(),
-          username: entry.username || 'N/A',
+          username: username || 'N/A',
           status: entry.status || 'À remettre',
           statusDate: entry.status_date || ''
         }));
