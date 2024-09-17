@@ -6,11 +6,10 @@ services:
       context: ./ttpjc
       dockerfile: Dockerfile
     ports:
-      - "8081:8080"
+      - "8081:8081"  # Map port 8081 on host to port 8081 in the container
     volumes:
       - ./ttpjc:/app
       - /app/node_modules
-    
 
   backend:
     build:
@@ -21,4 +20,3 @@ services:
     volumes:
       - ./ttpjcbe:/app
       - /app/node_modules
-    

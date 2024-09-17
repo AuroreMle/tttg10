@@ -8,10 +8,10 @@ pipeline {
                     // Clean up the workspace
                     sh 'git reset --hard'
                     sh 'git clean -fd'
-                    
+
                     // Prune old, conflicting branches
                     sh 'git remote prune origin'
-                    
+
                     // Checkout the main branch from the new repository
                     checkout([$class: 'GitSCM',
                               branches: [[name: '*/main']],
@@ -23,7 +23,7 @@ pipeline {
             }
         }
 
-       
+
 
         stage('Pull Latest Changes') {
             steps {
@@ -40,7 +40,7 @@ pipeline {
                     // Check Docker and Docker Compose versions
                     sh 'docker --version'
                     sh 'docker-compose --version'
-                    
+
                     // Build Docker images
                     sh 'docker-compose build --no-cache'
                 }
@@ -52,7 +52,7 @@ pipeline {
                 script {
                     // Stop and remove existing containers
                     sh 'docker-compose down'
-                    
+
                     // Start Docker containers in detached mode
                     sh 'docker-compose up -d --build'
                 }

@@ -31,7 +31,7 @@ export default {
   methods: {
     async login() {
       try {
-        const response = await fetch('http://localhost:3000/login/user', {
+        const response = await fetch('https://vigilant-smile-production.up.railway.app/login/user', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
