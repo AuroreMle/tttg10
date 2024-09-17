@@ -86,7 +86,7 @@ export default {
         const response = await axios.get('https://vigilant-smile-production.up.railway.app/admin-history');
         this.history = response.data.map(entry => ({
           id: entry.id,
-          date: new Date(entry.date).toLocaleDateString(),
+          date: new Date(entry.validation_date).toLocaleDateString(),
           code: entry.code,
           gain: entry.gain,
           expiryDate: new Date(entry.expiryDate).toLocaleDateString(),
