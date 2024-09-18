@@ -72,7 +72,7 @@ export default {
         const firstEntry = matchingEntries[0];
 
         // Afficher le message de validation
-        this.alertMessage = `Ce code offre un ${firstEntry.gain}, il a été validé par ${firstEntry.username} le ${firstEntry.date}. Valable jusqu'au ${firstEntry.expiryDate}.`;
+        this.alertMessage = `Ce code offre un ${firstEntry.gain}, il a été validé par ${firstEntry.username} le ${firstEntry.date}. Valable jusqu'au ${firstEntry.expiryDate}. Statut : ${firstEntry.status} `;
         this.alertClass = 'alert-success';
       } else {
         // Si le code n'existe pas dans l'historique
