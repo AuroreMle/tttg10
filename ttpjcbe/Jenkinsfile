@@ -7,7 +7,7 @@ pipeline {
         PROMETHEUS_CONFIG_PATH = '/home/linuxuser/prometheus.yml'  // Correct path
         PROMETHEUS_IMAGE = 'prom/prometheus'
         GRAFANA_CONTAINER_NAME = 'grafana'
-        GRAFANA_PORT = '7000'  // Port mapping for Grafana
+        GRAFANA_PORT = '3000'  // Updated Grafana port to 3000
         GRAFANA_IMAGE = 'grafana/grafana'
         NETWORK_NAME = 'monitoring_network'  // Network name for linking
     }
@@ -78,7 +78,7 @@ pipeline {
         stage('Run Grafana Container') {
             steps {
                 script {
-                    // Run the Grafana container with the same port for both host and container
+                    // Run the Grafana container with port 3000
                     sh """
                     docker run -d --name \$GRAFANA_CONTAINER_NAME \\
                         --network \$NETWORK_NAME \\
