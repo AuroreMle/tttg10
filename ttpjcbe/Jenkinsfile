@@ -6,9 +6,28 @@ pipeline {
         PROMETHEUS_PORT = '9090'
         PROMETHEUS_CONFIG_PATH = '/home/linuxuser/prometheus.yml'  // Correct path
         PROMETHEUS_IMAGE = 'prom/prometheus'
+        GRAFANA_CONTAINER_NAME = 'grafana'
+        GRAFANA_PORT = '3000'  // Updated Grafana port to 3000
+        GRAFANA_IMAGE = 'grafana/grafana'
+        NETWORK_NAME = 'monitoring_network'  // Network name for linking
     }
 
     stages {
+        stage('Create Docker Network') {
+            steps {
+                script {
+                    // Create a Docker network if it doesn't already exist
+                    sh """
+                    if [ \$(docker network ls -q -f name=\$NETWORK_NAME) ]; then
+                        echo "Network \$NETWORK_NAME already exists"
+                    else
+                        docker network create \$NETWORK_NAME
+                    fi
+                    """
+                }
+            }
+        }
+
         stage('Clean up Existing Prometheus Container') {
             steps {
                 script {
@@ -31,9 +50,40 @@ pipeline {
                     // Run the Prometheus container with the correct config path
                     sh """
                     docker run -d --name \$PROMETHEUS_CONTAINER_NAME \\
+                        --network \$NETWORK_NAME \\
                         -p \$PROMETHEUS_PORT:\$PROMETHEUS_PORT \\
                         -v \$PROMETHEUS_CONFIG_PATH:/etc/prometheus/prometheus.yml \\
                         \$PROMETHEUS_IMAGE
+                    """
+                }
+            }
+        }
+
+        stage('Clean up Existing Grafana Container') {
+            steps {
+                script {
+                    // Clean up any existing Grafana container with the same name
+                    sh """
+                    if [ \$(docker ps -q -f name=\$GRAFANA_CONTAINER_NAME) ]; then
+                        docker stop \$GRAFANA_CONTAINER_NAME
+                    fi
+                    if [ \$(docker ps -a -q -f name=\$GRAFANA_CONTAINER_NAME) ]; then
+                        docker rm \$GRAFANA_CONTAINER_NAME
+                    fi
+                    """
+                }
+            }
+        }
+
+        stage('Run Grafana Container') {
+            steps {
+                script {
+                    // Run the Grafana container with port 3000
+                    sh """
+                    docker run -d --name \$GRAFANA_CONTAINER_NAME \\
+                        --network \$NETWORK_NAME \\
+                        -p \$GRAFANA_PORT:\$GRAFANA_PORT \\
+                        \$GRAFANA_IMAGE
                     """
                 }
             }
@@ -43,8 +93,9 @@ pipeline {
     post {
         always {
             script {
-                // Verify the status of the Prometheus container
+                // Verify the status of both the Prometheus and Grafana containers
                 sh 'docker ps -f name=\$PROMETHEUS_CONTAINER_NAME'
+                sh 'docker ps -f name=\$GRAFANA_CONTAINER_NAME'
             }
         }
     }
