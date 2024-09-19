@@ -7,7 +7,7 @@ pipeline {
         PROMETHEUS_CONFIG_PATH = '/home/linuxuser/prometheus.yml'  // Correct path
         PROMETHEUS_IMAGE = 'prom/prometheus'
         GRAFANA_CONTAINER_NAME = 'grafana'
-        GRAFANA_PORT = '3000'
+        GRAFANA_PORT = '3100'  // Changed Grafana port to 3100
         GRAFANA_IMAGE = 'grafana/grafana'
     }
 
@@ -61,7 +61,7 @@ pipeline {
         stage('Run Grafana Container') {
             steps {
                 script {
-                    // Run the Grafana container and link it to Prometheus
+                    // Run the Grafana container with the updated port and link it to Prometheus
                     sh """
                     docker run -d --name \$GRAFANA_CONTAINER_NAME \\
                         -p \$GRAFANA_PORT:\$GRAFANA_PORT \\
