@@ -127,7 +127,7 @@ app.get('/user-history/:userId', (req, res) => {
 
 // Route pour récupérer l'historique des gains pour l'admin
 app.get('/admin-history', (req, res) => {
-  connection.query('SELECT * FROM user_gains', (error, results) => {
+  connection.query('SELECT * FROM user_gains UG, users U WHERE UG.user_id = U.id',  (error, results) => {
     if (error) {
       return res.status(500).json({ message: 'Erreur lors de la récupération de l\'historique' });
     }
