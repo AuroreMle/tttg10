@@ -135,6 +135,31 @@ app.get('/admin-history', (req, res) => {
   });
 });
 
+// Route pour update le statut
+app.patch('/update-status/:id', (req, res) => {
+  const gainId = req.params.id;
+  const { status } = req.body; // Le statut est envoyé dans le corps de la requête
+
+  if (!status) {
+    return res.status(400).json({ message: 'Statut manquant dans la requête' });
+  }
+
+  // Mise à jour directe du statut dans la base de données
+  connection.query('UPDATE user_gains SET status = ?, status_date = NOW() WHERE id = ?', 
+  [status, gainId], (error, results) => {
+    if (error) {
+      return res.status(500).json({ message: 'Erreur lors de la mise à jour du statut' });
+    }
+
+    if (results.affectedRows > 0) {
+      res.status(200).json({ message: 'Statut mis à jour avec succès' });
+    } else {
+      res.status(404).json({ message: 'Gain non trouvé' });
+    }
+  });
+});
+
+
 // Démarrer le serveur
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
