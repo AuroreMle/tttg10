@@ -101,18 +101,18 @@ export default {
     async updateStatus(id) {
   try {
     const response = await axios.patch(`https://vigilant-smile-production.up.railway.app/update-status/${id}`, {
-      status: 'Remis' // Le nouveau statut à envoyer au back-end
+      status: 'Remis' // Envoyer le statut spécifique pour ce gain
     });
 
     if (response.status === 200) {
-      const updatedHistory = this.history.map(entry => {
+      // Mettre à jour uniquement l'entrée correspondante
+      this.history = this.history.map(entry => {
         if (entry.id === id) {
-          entry.status = 'Remis le'; // Mettre à jour localement le statut
-          entry.statusDate = new Date().toLocaleDateString(); // Ajouter la date de mise à jour
+          entry.status = 'Remis le'; // Mettre à jour le statut localement
+          entry.statusDate = new Date().toLocaleDateString(); // Date locale
         }
         return entry;
       });
-      this.history = updatedHistory; // Mettre à jour l'historique localement
     }
   } catch (error) {
     console.error('Erreur lors de la mise à jour du statut: ', error);
