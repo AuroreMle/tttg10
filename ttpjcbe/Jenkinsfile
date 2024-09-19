@@ -6,6 +6,9 @@ pipeline {
         PROMETHEUS_PORT = '9090'
         PROMETHEUS_CONFIG_PATH = '/home/linuxuser/prometheus.yml'  // Correct path
         PROMETHEUS_IMAGE = 'prom/prometheus'
+        GRAFANA_CONTAINER_NAME = 'grafana'
+        GRAFANA_PORT = '3000'
+        GRAFANA_IMAGE = 'grafana/grafana'
     }
 
     stages {
@@ -38,13 +41,44 @@ pipeline {
                 }
             }
         }
+
+        stage('Clean up Existing Grafana Container') {
+            steps {
+                script {
+                    // Clean up any existing Grafana container with the same name
+                    sh """
+                    if [ \$(docker ps -q -f name=\$GRAFANA_CONTAINER_NAME) ]; then
+                        docker stop \$GRAFANA_CONTAINER_NAME
+                    fi
+                    if [ \$(docker ps -a -q -f name=\$GRAFANA_CONTAINER_NAME) ]; then
+                        docker rm \$GRAFANA_CONTAINER_NAME
+                    fi
+                    """
+                }
+            }
+        }
+
+        stage('Run Grafana Container') {
+            steps {
+                script {
+                    // Run the Grafana container and link it to Prometheus
+                    sh """
+                    docker run -d --name \$GRAFANA_CONTAINER_NAME \\
+                        -p \$GRAFANA_PORT:\$GRAFANA_PORT \\
+                        --link \$PROMETHEUS_CONTAINER_NAME:prometheus \\
+                        \$GRAFANA_IMAGE
+                    """
+                }
+            }
+        }
     }
 
     post {
         always {
             script {
-                // Verify the status of the Prometheus container
+                // Verify the status of both the Prometheus and Grafana containers
                 sh 'docker ps -f name=\$PROMETHEUS_CONTAINER_NAME'
+                sh 'docker ps -f name=\$GRAFANA_CONTAINER_NAME'
             }
         }
     }
