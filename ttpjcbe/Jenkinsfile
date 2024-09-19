@@ -7,11 +7,27 @@ pipeline {
         PROMETHEUS_CONFIG_PATH = '/home/linuxuser/prometheus.yml'  // Correct path
         PROMETHEUS_IMAGE = 'prom/prometheus'
         GRAFANA_CONTAINER_NAME = 'grafana'
-        GRAFANA_PORT = '7001'  // Changed Grafana port to 3100
+        GRAFANA_PORT = '7000'  // Port mapping for Grafana
         GRAFANA_IMAGE = 'grafana/grafana'
+        NETWORK_NAME = 'monitoring_network'  // Network name for linking
     }
 
     stages {
+        stage('Create Docker Network') {
+            steps {
+                script {
+                    // Create a Docker network if it doesn't already exist
+                    sh """
+                    if [ \$(docker network ls -q -f name=\$NETWORK_NAME) ]; then
+                        echo "Network \$NETWORK_NAME already exists"
+                    else
+                        docker network create \$NETWORK_NAME
+                    fi
+                    """
+                }
+            }
+        }
+
         stage('Clean up Existing Prometheus Container') {
             steps {
                 script {
@@ -34,6 +50,7 @@ pipeline {
                     // Run the Prometheus container with the correct config path
                     sh """
                     docker run -d --name \$PROMETHEUS_CONTAINER_NAME \\
+                        --network \$NETWORK_NAME \\
                         -p \$PROMETHEUS_PORT:\$PROMETHEUS_PORT \\
                         -v \$PROMETHEUS_CONFIG_PATH:/etc/prometheus/prometheus.yml \\
                         \$PROMETHEUS_IMAGE
@@ -61,11 +78,11 @@ pipeline {
         stage('Run Grafana Container') {
             steps {
                 script {
-                    // Run the Grafana container with the updated port and link it to Prometheus
+                    // Run the Grafana container with the same port for both host and container
                     sh """
                     docker run -d --name \$GRAFANA_CONTAINER_NAME \\
+                        --network \$NETWORK_NAME \\
                         -p \$GRAFANA_PORT:\$GRAFANA_PORT \\
-                        --link \$PROMETHEUS_CONTAINER_NAME:prometheus \\
                         \$GRAFANA_IMAGE
                     """
                 }
