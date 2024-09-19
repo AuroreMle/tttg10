@@ -7,7 +7,7 @@ pipeline {
         PROMETHEUS_CONFIG_PATH = '/home/linuxuser/prometheus.yml'  // Correct path
         PROMETHEUS_IMAGE = 'prom/prometheus'
         GRAFANA_CONTAINER_NAME = 'grafana'
-        GRAFANA_PORT = '3100'  // Changed Grafana port to 3100
+        GRAFANA_PORT = '7001'  // Changed Grafana port to 3100
         GRAFANA_IMAGE = 'grafana/grafana'
     }
 
