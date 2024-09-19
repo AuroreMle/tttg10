@@ -16,7 +16,7 @@ services:
       context: ./ttpjcbe
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "7000:7000"  # Change from 3000:3000 to 7000:7000
     volumes:
       - ./ttpjcbe:/app
       - /app/node_modules
